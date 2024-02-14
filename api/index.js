@@ -4,7 +4,8 @@ import dotenv from 'dotenv';
 import userRouter from './routes/user.route.js';
 import authRouter from './routes/auth.route.js';
 dotenv.config();
-
+const app = express();
+app.use(express.json());
 
 mongoose.connect(
  process.env.MONGO
@@ -14,8 +15,7 @@ mongoose.connect(
     console.log(err);
 })
 
-const app=express();
-app.use(express.json());//by deafult we are not allow to send json to server so here we allow to send json by this line of code
+//by deafult we are not allow to send json to server so here we allow to send json by this line of code
 
 
 
@@ -36,3 +36,19 @@ app.listen(3000,()=>{
 
 app.use('/api/user',userRouter);
 app.use('/api/auth',authRouter);
+
+
+//middlleware for errors
+app.use((err,req,res,next)=>{
+
+const statusCode=err.statusCode || 500;
+const message=err.message || 'Internal Server error';
+return res.status(statusCode).json({
+    success:false,
+    statusCode,
+    message,
+})
+})
+
+
+
